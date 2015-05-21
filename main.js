@@ -19,6 +19,7 @@
                 cleanKey = key;
                 clearRules[key]();
 
+                console.log(key, 'matched');
                 chrome.extension.sendMessage({
                     showContextMenu: true
                 });
