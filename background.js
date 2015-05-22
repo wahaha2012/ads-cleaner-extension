@@ -10,7 +10,8 @@
                 contextMenuId = chrome.contextMenus.create({
                     "title" : "Clean Advertisements",
                     "documentUrlPatterns" : [
-                        "*://blog.sina.com.cn/*"
+                        "*://blog.sina.com.cn/*",
+                        "*://*.eastmoney.com/*"
                     ],
                     "onclick" : sendCleanMsg
                 });
