@@ -7,18 +7,25 @@
         cleanKey = '',
         clearRules = {
         'blog.sina.com.cn/s': function(){
-            Array.prototype.forEach.call(document.querySelectorAll(".sinaad-toolkit-box,.popBox,.godreply,.sinaads"),function(item){
-                item.style.cssText="display:none";
-            });
+            cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads");
+        },
+        'eastmoney.com': function(){
+            cleanDomBySelector(".lbadbox,.rbadbox,iframe");
         }
     };
 
-    function clean(){
+    function cleanDomBySelector(selector){
+        Array.prototype.forEach.call(document.querySelectorAll(selector),function(item){
+            item.style.cssText="display:none";
+        });
+    }
+
+    function init(){
         for(var key in clearRules){
             if(clearRules.hasOwnProperty(key) && tabURL.indexOf(key)>-1){
                 cleanKey = key;
-                clearRules[key]();
-
+                // clearRules[key]();
+                
                 chrome.extension.sendMessage({
                     showContextMenu: true
                 });
@@ -33,5 +40,5 @@
         }
     });
 
-    clean();
+    init();
 })();
