@@ -11,6 +11,9 @@
         },
         'eastmoney.com': function(){
             cleanDomBySelector(".lbadbox,.rbadbox,iframe");
+        },
+        'iteye.com': function(){
+            cleanDomBySelector("iframe");
         }
     };
 

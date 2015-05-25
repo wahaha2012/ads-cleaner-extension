@@ -18,8 +18,9 @@
     },
     "content_scripts":[{
         "matches": [
-            "*://blog.sina.com.cn/*",
-            "*://*.eastmoney.com/*"
+            "*://*.iteye.com/*",
+            "*://*.eastmoney.com/*",
+            "*://blog.sina.com.cn/*"
         ],
         "js": [
             "main.js"
