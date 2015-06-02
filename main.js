@@ -6,16 +6,29 @@
     var tabURL = window.location.href,
         cleanKey = '',
         clearRules = {
-        'blog.sina.com.cn/s': function(){
-            cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads");
-        },
-        'eastmoney.com': function(){
-            cleanDomBySelector(".lbadbox,.rbadbox,iframe");
-        },
-        'iteye.com': function(){
-            cleanDomBySelector("iframe");
-        }
-    };
+            'blog.sina.com.cn/s': function(){
+                cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads");
+            },
+            'eastmoney.com': function(request){
+                if(request.cleanAds){
+                    cleanDomBySelector(".lbadbox,.rbadbox,iframe");
+                }
+
+                if(request.cleanStartup){
+                    var table = document.querySelectorAll("#dt_1 tr");
+                    Array.prototype.forEach.call(table, function(item){
+                        var tds = item.querySelectorAll("td");
+                        if(tds.length < 1){return;}
+                        if(tds[0] && tds[0].innerText && tds[0].innerText.replace(/\s+/g,'').indexOf("3")==0){
+                            item.style.cssText="display:none";
+                        }
+                    });
+                }
+            },
+            'iteye.com': function(){
+                cleanDomBySelector("iframe");
+            }
+        };
 
     function cleanDomBySelector(selector){
         Array.prototype.forEach.call(document.querySelectorAll(selector),function(item){
@@ -38,8 +51,8 @@
     }
 
     chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
-        if(request.cleanAds){
-            clearRules[cleanKey]();
+        if(request){
+            clearRules[cleanKey](request);
         }
     });
 
