@@ -11,7 +11,7 @@
             },
             'eastmoney.com': function(request){
                 if(request.cleanAds){
-                    cleanDomBySelector(".lbadbox,.rbadbox,iframe,#flow-ad-169");
+                    cleanDomBySelector(".lbadbox,.rbadbox,iframe");
                 }
 
                 if(request.cleanStartup){
