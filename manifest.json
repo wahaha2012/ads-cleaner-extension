@@ -20,7 +20,8 @@
         "matches": [
             "*://*.iteye.com/*",
             "*://*.eastmoney.com/*",
-            "*://blog.sina.com.cn/*"
+            "*://blog.sina.com.cn/*",
+            "*://*.stock.hexun.com/*"
         ],
         "js": [
             "main.js"

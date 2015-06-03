@@ -13,7 +13,8 @@
                     "documentUrlPatterns" : [
                         "*://*.iteye.com/*",
                         "*://*.eastmoney.com/*",
-                        "*://blog.sina.com.cn/*"
+                        "*://blog.sina.com.cn/*",
+                        "*://*.stock.hexun.com/*"
                     ],
                     "onclick" : sendCleanMsg
                 });

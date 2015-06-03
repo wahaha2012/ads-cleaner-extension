@@ -5,6 +5,7 @@
 (function () {
     var tabURL = window.location.href,
         cleanKey = '',
+        autoClean = true,
         clearRules = {
             'blog.sina.com.cn/s': function(){
                 cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads");
@@ -27,6 +28,15 @@
             },
             'iteye.com': function(){
                 cleanDomBySelector("iframe");
+            },
+            'stock.hexun.com': function(){
+                cleanDomBySelector(".box15_ad,#topFullWidthBanner,#list4_ad,#BannerMiddle_01,#BannerMiddle_02");
+
+                Array.prototype.forEach.call(document.querySelectorAll('.adcLoadingTip'),function(item){
+                    item.style.cssText="display:none";
+                    nextNode = item.nextSlbling||item.nextElementSibling; 
+                    nextNode.style.cssText="display:none";
+                });
             }
         };
 
@@ -40,7 +50,7 @@
         for(var key in clearRules){
             if(clearRules.hasOwnProperty(key) && tabURL.indexOf(key)>-1){
                 cleanKey = key;
-                // clearRules[key]();
+                autoClean && clearRules[key]();
                 
                 chrome.extension.sendMessage({
                     showContextMenu: true
