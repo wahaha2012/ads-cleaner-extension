@@ -14,7 +14,8 @@
                         "*://*.iteye.com/*",
                         "*://*.eastmoney.com/*",
                         "*://blog.sina.com.cn/*",
-                        "*://*.stock.hexun.com/*"
+                        "*://*.stock.hexun.com/*",
+                        "*://*.chinaz.com/*"
                     ],
                     "onclick" : sendCleanMsg
                 });

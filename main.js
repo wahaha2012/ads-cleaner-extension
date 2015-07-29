@@ -37,6 +37,9 @@
                     nextNode = item.nextSlbling||item.nextElementSibling; 
                     nextNode.style.cssText="display:none";
                 });
+            },
+            'chinaz.com':function(){
+                cleanDomBySelector("iframe,.mt10,.mb10,.mtb20,.otherContent_01,.ml10,.sideAdList");
             }
         };
 
