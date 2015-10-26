@@ -10,22 +10,14 @@
         "128" : "icons/icon128.png"
     },
     "permissions": [
-        "contextMenus",
-        "tabs"
+        "activeTab"
     ],
-    "background":{
-        "scripts":["background.js"]
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
     },
-    "content_scripts":[{
-        "matches": [
-            "*://*.iteye.com/*",
-            "*://*.eastmoney.com/*",
-            "*://blog.sina.com.cn/*",
-            "*://*.stock.hexun.com/*",
-            "*://*.chinaz.com/*"
-        ],
-        "js": [
-            "main.js"
-        ]
-    }]
+    "browser_action": {
+        "default_icon": "icons/icon19.png",
+        "default_title": "Clear iframes"
+    }
 }
