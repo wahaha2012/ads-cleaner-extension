@@ -8,7 +8,10 @@
         autoClean = true,
         clearRules = {
             'blog.sina.com.cn/s': function(){
-                cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads");
+                // cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads,.blogreco,#column_1");
+                document.body.innerHTML = document.querySelector('#module_920_SG_connBody').innerHTML;
+                document.body.style.cssText = 'background:#4d4d4d;color:#c1c1c1';
+                document.querySelector('.articalContent,.BNE_cont').style.cssText = 'margin:0 auto;';
             },
             'eastmoney.com': function(request){
                 if(request.cleanAds){
@@ -53,7 +56,11 @@
         for(var key in clearRules){
             if(clearRules.hasOwnProperty(key) && tabURL.indexOf(key)>-1){
                 cleanKey = key;
-                autoClean && clearRules[key]();
+                try{
+                    // autoClean && clearRules[key]();
+                }catch(err){
+                    // console.log('err=>', err);
+                }
                 
                 chrome.extension.sendMessage({
                     showContextMenu: true
