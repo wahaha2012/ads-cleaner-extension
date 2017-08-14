@@ -68,7 +68,7 @@
                     try{
                         clearRules[key]();
                     }catch(err){
-                        // console.log('err=>', err);
+                        console.log('err=>', err);
                     }
                 }
 
