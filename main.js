@@ -5,7 +5,7 @@
 (function () {
     var tabURL = window.location.href,
         cleanKey = '',
-        autoClean = true,
+        autoCleanRules = ['jisilu.cn','xueqiu.com'],
         clearRules = {
             'blog.sina.com.cn/s': function(){
                 // cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads,.blogreco,#column_1");
@@ -43,6 +43,14 @@
             },
             'chinaz.com':function(){
                 cleanDomBySelector("iframe,.mt10,.mb10,.mtb20,.otherContent_01,.ml10,.sideAdList");
+            },
+            'jisilu.cn':function(){
+                cleanDomBySelector(".J_head_bg+div, div.foot_ad, .aw-container>div:nth-child(1), .aw-top-menu");
+                // var firstClassDivs = document.querySelectorAll('.J_head_bg+div');
+                // firstClassDivs[1].style.cssText="display:none";
+            },
+            'xueqiu.com':function(){
+                cleanDomBySelector("#head");
             }
         };
 
@@ -56,12 +64,14 @@
         for(var key in clearRules){
             if(clearRules.hasOwnProperty(key) && tabURL.indexOf(key)>-1){
                 cleanKey = key;
-                try{
-                    // autoClean && clearRules[key]();
-                }catch(err){
-                    // console.log('err=>', err);
+                if (autoCleanRules.includes(key)) {
+                    try{
+                        clearRules[key]();
+                    }catch(err){
+                        // console.log('err=>', err);
+                    }
                 }
-                
+
                 chrome.extension.sendMessage({
                     showContextMenu: true
                 });

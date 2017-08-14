@@ -15,7 +15,9 @@
                         "*://*.eastmoney.com/*",
                         "*://blog.sina.com.cn/*",
                         "*://*.stock.hexun.com/*",
-                        "*://*.chinaz.com/*"
+                        "*://*.chinaz.com/*",
+                        "*://*.jisilu.cn/*",
+                        "*://*.xueqiu.com/*",
                     ],
                     "onclick" : sendCleanMsg
                 });
