@@ -50,7 +50,9 @@
                 // firstClassDivs[1].style.cssText="display:none";
             },
             'xueqiu.com':function(){
-                cleanDomBySelector("#head");
+                if (!document.querySelector('#home-top-right')) {
+                    cleanDomBySelector("#head");
+                }
             }
         };
 
