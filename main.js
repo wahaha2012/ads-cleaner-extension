@@ -52,6 +52,7 @@
             'xueqiu.com':function(){
                 if (!document.querySelector('#home-top-right')) {
                     cleanDomBySelector("#head");
+                    cleanDomBySelector("nav.nav");
                 }
             }
         };
