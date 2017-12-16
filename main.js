@@ -50,16 +50,28 @@
                 // firstClassDivs[1].style.cssText="display:none";
             },
             'xueqiu.com':function(){
-                if (!document.querySelector('#home-top-right')) {
-                    cleanDomBySelector("#head");
-                    cleanDomBySelector("nav.nav");
-                }
+                cleanDomBySelector('.nav__logo');
+                setStyles('.nav', {position: 'absolute'});
+                // if (!document.querySelector('#home-top-right')) {
+                //     cleanDomBySelector("#head");
+                //     cleanDomBySelector("nav.nav");
+                // }
             }
         };
 
     function cleanDomBySelector(selector){
         Array.prototype.forEach.call(document.querySelectorAll(selector),function(item){
             item.style.cssText="display:none";
+        });
+    }
+    
+    function setStyles(selector, options) {
+        const cssText = [];
+        for(var key in options) {
+            cssText.push(key + ':' + options[key]);
+        }
+        Array.prototype.forEach.call(document.querySelectorAll(selector),function(item){
+            item.style.cssText = cssText.join(';');
         });
     }
 
