@@ -4,7 +4,8 @@
  */
 (function () {
     var contextMenuId,
-        cleanStartUpMenuId;
+        cleanStartUpMenuId,
+        translateMenuId;
     chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
         if(request.showContextMenu){
             if(!contextMenuId){
@@ -44,6 +45,40 @@
     function sendCleanStMsg(info, tab){
         chrome.tabs.sendMessage(tab.id, {
             cleanStartup: true
+        });
+    }
+
+    function translatePage(info, tab) {
+        var translators = {
+            'Google': 'https://translate.google.com/translate?sl=auto&tl=zh-CN&js=y&prev=_t&hl=en&ie=UTF-8&edit-text=&act=url&u=',
+            'Bing': 'https://www.microsofttranslator.com/bv.aspx?to=zh-CHS&a=',
+        };
+        chrome.tabs.create({
+            url: translators[info.menuItemId] + decodeURIComponent(tab.url)
+        });
+        // console.log(info.menuItemId, tab.url);
+    }
+
+    // translate content
+    if(!translateMenuId){
+        translateMenuId = chrome.contextMenus.create({
+            "title" : "Translate Page",
+            "documentUrlPatterns" : [
+                "*://*.sec.gov/*"
+            ],
+            "id": "parentMenu"
+        });
+        chrome.contextMenus.create({
+            "title": "Google", 
+            "parentId": "parentMenu", 
+            "id": "Google",
+            "onclick": translatePage
+        });
+        chrome.contextMenus.create({
+            "title": "Bing", 
+            "parentId": "parentMenu", 
+            "id": "Bing",
+            "onclick": translatePage
         });
     }
 })();
