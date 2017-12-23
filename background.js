@@ -64,7 +64,8 @@
         translateMenuId = chrome.contextMenus.create({
             "title" : "Translate Page",
             "documentUrlPatterns" : [
-                "*://*.sec.gov/*"
+                "*://*.sec.gov/*",
+                "*://*.seekingalpha.com/*"
             ],
             "id": "parentMenu"
         });
