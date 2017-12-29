@@ -45,7 +45,7 @@
                 cleanDomBySelector("iframe,.mt10,.mb10,.mtb20,.otherContent_01,.ml10,.sideAdList");
             },
             'jisilu.cn':function(){
-                cleanDomBySelector(".J_head_bg+div, div.foot_ad, .aw-container>div:nth-child(1), .aw-top-menu");
+                cleanDomBySelector("div.foot_ad");
                 // var firstClassDivs = document.querySelectorAll('.J_head_bg+div');
                 // firstClassDivs[1].style.cssText="display:none";
             },
