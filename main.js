@@ -46,8 +46,10 @@
             },
             'jisilu.cn':function(){
                 cleanDomBySelector("div.foot_ad");
-                // var firstClassDivs = document.querySelectorAll('.J_head_bg+div');
-                // firstClassDivs[1].style.cssText="display:none";
+                var adsBanner = document.querySelector('a.jsl_ad_banner').parentNode;
+                if (adsBanner) {
+                    adsBanner.style.cssText="display:none"
+                }
             },
             'xueqiu.com':function(){
                 cleanDomBySelector('.nav__logo');
