@@ -5,7 +5,7 @@
 (function () {
     var tabURL = window.location.href,
         cleanKey = '',
-        autoCleanRules = ['jisilu.cn','xueqiu.com'],
+        autoCleanRules = ['jisilu.cn','xueqiu.com','eastmoney.com'],
         clearRules = {
             'blog.sina.com.cn/s': function(){
                 // cleanDomBySelector(".sinaad-toolkit-box,.popBox,.godreply,.sinaads,.blogreco,#column_1");
@@ -14,11 +14,11 @@
                 document.querySelector('.articalContent,.BNE_cont').style.cssText = 'margin:0 auto;';
             },
             'eastmoney.com': function(request){
-                if(request.cleanAds){
+                if(request && request.cleanAds){
                     cleanDomBySelector(".lbadbox,.rbadbox,iframe");
                 }
 
-                if(request.cleanStartup){
+                if(request && request.cleanStartup){
                     var table = document.querySelectorAll("#dt_1 tr");
                     Array.prototype.forEach.call(table, function(item){
                         var tds = item.querySelectorAll("td");
@@ -27,6 +27,14 @@
                             item.style.cssText="display:none";
                         }
                     });
+                }
+
+                if (~window.location.href.indexOf('PC_HSF10')) {
+                    var F10Table = document.querySelector('#F10MainTargetDiv');
+                    if (F10Table) { F10Table.style.cssText = 'height: auto'; }
+                    document.querySelector('#RightMenu').style.display = 'none';
+                    document.querySelector('.header').style.position = 'static';
+                    document.querySelector('.subnav').style.position = 'static';
                 }
             },
             'iteye.com': function(){
@@ -54,10 +62,17 @@
             'xueqiu.com':function(){
                 cleanDomBySelector('.nav__logo');
                 setStyles('.nav', {position: 'absolute'});
-                // if (!document.querySelector('#home-top-right')) {
-                //     cleanDomBySelector("#head");
-                //     cleanDomBySelector("nav.nav");
-                // }
+
+                var symbol = window.location.href.toLowerCase().match(/s[hz]\d{6}/);
+                if (symbol && Object.prototype.toString.call(symbol).slice(8, -1) === 'Array') {
+                    var stockTabs = document.querySelector('.stock-timeline-tabs');
+                    var financeLink = document.createElement('a');
+                    
+                    financeLink.innerHTML = '财务';
+                    financeLink.setAttribute('href', 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?code=' + symbol);
+                    financeLink.setAttribute('target', '_blank');
+                    stockTabs.appendChild(financeLink);   
+                }
             }
         };
 
