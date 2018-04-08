@@ -71,7 +71,13 @@
                     financeLink.innerHTML = '财务';
                     financeLink.setAttribute('href', 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?code=' + symbol);
                     financeLink.setAttribute('target', '_blank');
-                    stockTabs.appendChild(financeLink);   
+                    stockTabs.appendChild(financeLink);
+
+                    var valueGoLink = document.createElement('a');
+                    valueGoLink.innerHTML = '指标';
+                    valueGoLink.setAttribute('href', 'https://wayougou.com/stock/' + String(symbol).replace(/[a-z]+/, '') + '/outline/outline');
+                    valueGoLink.setAttribute('target', '_blank');
+                    stockTabs.appendChild(valueGoLink);
                 }
             }
         };
