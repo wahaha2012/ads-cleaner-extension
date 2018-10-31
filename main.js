@@ -60,7 +60,7 @@
                 }
             },
             'xueqiu.com':function(){
-                cleanDomBySelector('.nav__logo');
+                cleanDomBySelector('.nav__logo,.home__stock-index,.optional__tabs__contents,.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation');
                 setStyles('.nav', {position: 'absolute'});
 
                 var symbol = window.location.href.toLowerCase().match(/s[hz]\d{6}/);
