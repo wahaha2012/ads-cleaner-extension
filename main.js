@@ -14,9 +14,9 @@
                 document.querySelector('.articalContent,.BNE_cont').style.cssText = 'margin:0 auto;';
             },
             'eastmoney.com': function(request){
-                if(request && request.cleanAds){
-                    cleanDomBySelector(".lbadbox,.rbadbox,iframe");
-                }
+                // if(request && request.cleanAds){
+                    cleanDomBySelector(".lbadbox,.rbadbox,iframe,#emFloat_rd");
+                // }
 
                 if(request && request.cleanStartup){
                     var table = document.querySelectorAll("#dt_1 tr");
@@ -60,7 +60,9 @@
                 }
             },
             'xueqiu.com':function(){
-                cleanDomBySelector('.nav__logo,.home__stock-index,.optional__tabs__contents,.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation');
+                if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
+                    cleanDomBySelector('.nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation');
+                }
                 setStyles('.nav', {position: 'absolute'});
 
                 var symbol = window.location.href.toLowerCase().match(/s[hz]\d{6}/);
