@@ -59,12 +59,13 @@
       'jisilu.cn': function () {
         cleanDomBySelector("div.foot_ad");
         cleanParentNode("a.jsl_ad_banner");
-        var prevElement = document.querySelector("div.aw-mod-replay-box").previousElementSibling;
-        if (String(prevElement.getAttribute("class")).indexOf("aw-mod") < 0) {
-          prevElement.style.display = "none";
+
+        var replayBox = document.querySelector("div.aw-mod-replay-box");
+        if (replayBox && replayBox.previousElementSibling && String(replayBox.previousElementSibling.getAttribute("class")).indexOf("aw-mod") < 0) {
+          replayBox.previousElementSibling.style.display = "none";
         }
 
-        setTimeout(beautiJisiluTable, 300);
+        setTimeout(beautiJisiluTable, 500);
       },
       'xueqiu.com': function () {
         if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
