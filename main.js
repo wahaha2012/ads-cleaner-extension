@@ -64,8 +64,23 @@
         if (replayBox && replayBox.previousElementSibling && String(replayBox.previousElementSibling.getAttribute("class")).indexOf("aw-mod") < 0) {
           replayBox.previousElementSibling.style.display = "none";
         }
+        
+        var allTables = document.getElementsByTagName("table");
+        var beautyFunc = debounce(function() {
+          console.log("beautify table");
+          beautiJisiluTable();
+        }, 500);
 
-        setTimeout(beautiJisiluTable, 500);
+        [].forEach.call(allTables, function(table) {
+          // console.log(table.getAttribute("id"));
+          var observer = new MutationObserver(beautyFunc);
+
+          observer.observe(table, {
+            attributes: true,
+            childList: true
+          });
+        });
+        
       },
       'xueqiu.com': function () {
         if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
@@ -93,6 +108,21 @@
         }
       }
     };
+  
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  };
 
   function cleanDomBySelector(selector) {
     Array.prototype.forEach.call(document.querySelectorAll(selector), function (item) {
