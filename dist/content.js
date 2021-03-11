@@ -307,7 +307,7 @@
     const source = document.createElement("div");
     source.style.cssText =
       "white-space: nowrap; width: 100%; overflow: hidden; text-overflow: ellipsis;margin-top: 9px; font-size: 12px; color: rgba(255,255,255, 0.5); display: none;";
-    source.innerText = v.src;
+    source.innerText = v.currentSrc;
 
     const action = [
       {
@@ -338,7 +338,8 @@
     ["音量-", "音量+", "速度-", "速度+", "刷新", "显示源"].forEach((item, i) => {
       const btn = document.createElement("button");
       btn.innerText = item;
-      btn.style.cssText = "border-radius: 2px; margin: 0 2px;";
+      btn.style.cssText =
+        "border-radius: 2px; margin: 0 2px; border: 0 none; color: #666666; cursor: pointer; padding: 0 2px;";
       if (typeof action[i] !== "function") {
         const act = action[i];
         btn.onclick = () => {
@@ -381,7 +382,7 @@
 
   const init = () => {
     const videos = getAllVideos();
-    console.log("find videos: ", videos.length);
+    // console.log("find videos: ", videos.length);
 
     createVideoController(videos);
   };

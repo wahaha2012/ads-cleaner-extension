@@ -18,13 +18,8 @@
     },
     "content_scripts":[{
         "matches": [
-            "*://*.iteye.com/*",
-            "*://*.eastmoney.com/*",
-            "*://blog.sina.com.cn/*",
-            "*://*.stock.hexun.com/*",
-            "*://*.chinaz.com/*",
-            "*://*.jisilu.cn/*",
-            "*://*.xueqiu.com/*"
+            "http://*/*",
+            "https://*/*"
         ],
         "js": [
             "content.js"
