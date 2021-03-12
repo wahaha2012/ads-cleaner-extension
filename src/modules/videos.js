@@ -10,6 +10,12 @@ const createContainer = () => {
 };
 
 const createControlBar = (c, v) => {
+  if (v.videoWidth < 100 || v.videoHeight < 100) {
+    setTimeout(() => {
+      c.parentNode && c.parentNode.removeChild(c);
+    }, 500);
+    return;
+  }
   const fields = ["进度", "尺寸", "速度", "音量"];
   const pos = v.getBoundingClientRect();
   c.style.cssText += `left: ${pos.left}px; top: ${pos.top}px; width: ${pos.width}px;`;
@@ -53,15 +59,36 @@ const createControlBar = (c, v) => {
       change: 0.25,
     },
     () => {
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+      } else {
+        if (document.pictureInPictureEnabled) {
+          v.requestPictureInPicture();
+        }
+      }
+    },
+    () => {
       createControlBar(c, v);
     },
     () => {
       source.style.display = source.style.display === "none" ? "block" : "none";
     },
+    () => {
+      c.style.display = "none";
+    },
   ];
 
   // create all buttons
-  ["音量-", "音量+", "速度-", "速度+", "刷新", "显示源"].forEach((item, i) => {
+  [
+    "音量-",
+    "音量+",
+    "速度-",
+    "速度+",
+    "画中画",
+    "刷新",
+    "显示源",
+    "关闭",
+  ].forEach((item, i) => {
     const btn = document.createElement("button");
     btn.innerText = item;
     btn.style.cssText =
@@ -76,7 +103,7 @@ const createControlBar = (c, v) => {
         try {
           v[act.type] += act.change;
 
-          action[4]();
+          action[5]();
         } catch (err) {
           console.warn("[Extension AC]", err);
         }
