@@ -11,7 +11,8 @@
     },
     "permissions": [
         "contextMenus",
-        "tabs"
+        "tabs",
+        "*://emweb.securities.eastmoney.com/*"
     ],
     "background":{
         "scripts":["background.js"]

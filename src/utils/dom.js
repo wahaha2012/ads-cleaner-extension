@@ -71,3 +71,22 @@ export function beautiJisiluTable() {
     });
   }
 }
+
+export function createElement(config) {
+  var el = document.createElement(config.tagName || "a");
+
+  el.innerHTML = config.innerHTML || config.innerText;
+
+  if (config.href) {
+    el.setAttribute("href", config.href);
+    el.setAttribute("target", config.target || "_blank");
+  }
+
+  if (config.attrs) {
+    Object.entries(config.attrs).forEach(([k, v]) => {
+      el.setAttribute(k, v);
+    });
+  }
+
+  return el;
+}

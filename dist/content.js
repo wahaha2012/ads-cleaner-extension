@@ -93,6 +93,25 @@
     }
   }
 
+  function createElement(config) {
+    var el = document.createElement(config.tagName || "a");
+
+    el.innerHTML = config.innerHTML || config.innerText;
+
+    if (config.href) {
+      el.setAttribute("href", config.href);
+      el.setAttribute("target", config.target || "_blank");
+    }
+
+    if (config.attrs) {
+      Object.entries(config.attrs).forEach(([k, v]) => {
+        el.setAttribute(k, v);
+      });
+    }
+
+    return el;
+  }
+
   let cleanKey = "";
   const autoCleanRules = [
     "jisilu.cn",
@@ -213,34 +232,63 @@
         position: "absolute",
       });
 
-      var symbol = window.location.href.toLowerCase().match(/s[hz]\d{6}/);
-      if (
-        symbol &&
-        Object.prototype.toString.call(symbol).slice(8, -1) === "Array"
-      ) {
+      var symbol = document.querySelector(".stock__main>.stock-name");
+      if (symbol && symbol.innerText) {
+        symbol = symbol.innerText.replace(/^.+\(|\)$/g, "").split(":");
         var stockTabs = document.querySelector(".stock-timeline-tabs");
-        var financeLink = document.createElement("a");
 
-        financeLink.innerHTML = "财务";
-        financeLink.setAttribute(
-          "href",
-          "http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?code=" +
-            symbol
-        );
-        financeLink.setAttribute("target", "_blank");
-        stockTabs.appendChild(financeLink);
+        if (["SH", "SZ"].includes(symbol[0].toUpperCase())) {
+          stockTabs.appendChild(
+            createElement({
+              innerText: "评级",
+              href:
+                "http://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?code=" +
+                symbol.join(""),
+            })
+          );
 
-        var valueGoLink = document.createElement("a");
-        valueGoLink.innerHTML = "指标";
-        valueGoLink.setAttribute(
-          "href",
-          "https://wayougou.com/stock/" +
-            String(symbol).replace(/[a-z]+/, "") +
-            "/outline/outline"
+          symbol[0] = symbol[0].toUpperCase().replace("H", "") + "SE";
+        } else if (["HK"].includes(symbol[0].toUpperCase())) {
+          symbol[0] = symbol[0].toUpperCase() + "EX";
+          symbol[1] = Number(symbol[1]);
+        }
+
+        stockTabs.appendChild(
+          createElement({
+            innerText: "TradingView",
+            href: `https://www.tradingview.com/symbols/${symbol.join("-")}/`,
+          })
         );
-        valueGoLink.setAttribute("target", "_blank");
-        stockTabs.appendChild(valueGoLink);
       }
+
+      // other tools
+      var navMenu = document.querySelector("div.nav__menu");
+      navMenu.removeChild(navMenu.firstChild);
+      navMenu.appendChild(
+        createElement({
+          innerHTML: "估值",
+          attrs: {
+            class: "nav__menu__item",
+          },
+          href: "https://danjuanapp.com/valuation-table/jiucai",
+        })
+      );
+      navMenu.appendChild(
+        createElement({
+          innerHTML: "性价比",
+          attrs: {
+            class: "nav__menu__item",
+          },
+          href: "http://funddb.cn/site/fed",
+        })
+      );
+
+      document.querySelectorAll(".nav__dropdown")[1].appendChild(
+        createElement({
+          innerText: "投资数据网",
+          href: "https://www.touzid.com/",
+        })
+      );
     },
   };
 
