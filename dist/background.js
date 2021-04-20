@@ -42,7 +42,6 @@
           });
         }
       } else if (request.getRanking) {
-        console.log("request", request);
         fetch(
           "https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=" +
             request.code,

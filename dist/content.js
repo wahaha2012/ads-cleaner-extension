@@ -242,9 +242,9 @@
         if (["SH", "SZ"].includes(symbol[0].toUpperCase())) {
           stockTabs.appendChild(
             createElement({
-              innerText: "股东",
+              innerText: "财务",
               href:
-                "https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/Index?type=soft&code=" +
+                "https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=soft&code=" +
                 symbolStr,
             })
           );
