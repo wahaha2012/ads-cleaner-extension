@@ -9,10 +9,10 @@
    */
   (function () {
     var contextMenuId, cleanStartUpMenuId, translateMenuId;
-    chrome.extension.onMessage.addListener(function (
-      request
-      // sender,
-      // sendResponse
+    chrome.runtime.onMessage.addListener(function (
+      request,
+      sender,
+      sendResponse
     ) {
       if (request.showContextMenu) {
         if (!contextMenuId) {
@@ -27,17 +27,41 @@
               "*://*.jisilu.cn/*",
               "*://*.xueqiu.com/*",
             ],
-            onclick: sendCleanMsg,
+            id: "cleanAds",
+            // onclick: sendCleanMsg,
           });
         }
+
         //clean startup menu
         if (!cleanStartUpMenuId) {
           cleanStartUpMenuId = chrome.contextMenus.create({
             title: "Clean Startup Company",
             documentUrlPatterns: ["*://*.eastmoney.com/*"],
-            onclick: sendCleanStMsg,
+            // onclick: sendCleanStMsg,
+            id: "cleanStartup",
           });
         }
+      } else if (request.getRanking) {
+        console.log("request", request);
+        fetch(
+          "https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=" +
+            request.code,
+          {
+            method: "GET",
+          }
+        )
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            sendResponse(data);
+          })
+          .catch((err) => {
+            console.log("Error:", err);
+          });
+        return true;
       }
     });
 
@@ -76,15 +100,30 @@
         title: "Google",
         parentId: "parentMenu",
         id: "Google",
-        onclick: translatePage,
+        // onclick: translatePage,
       });
       chrome.contextMenus.create({
         title: "Bing",
         parentId: "parentMenu",
         id: "Bing",
-        onclick: translatePage,
+        // onclick: translatePage,
       });
     }
+
+    chrome.contextMenus.onClicked.addListener(function (clickData, tab) {
+      switch (clickData.menuItemId) {
+        case "Google":
+        case "Bing":
+          translatePage(clickData, tab);
+          break;
+        case "cleanAds":
+          sendCleanMsg(clickData, tab);
+          break;
+        case "cleanStartup":
+          sendCleanStMsg(clickData, tab);
+          break;
+      }
+    });
   })();
 
 })));

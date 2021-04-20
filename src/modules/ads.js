@@ -128,17 +128,19 @@ const clearRules = {
     });
 
     var symbol = document.querySelector(".stock__main>.stock-name");
+    var symbolStr = "";
     if (symbol && symbol.innerText) {
       symbol = symbol.innerText.replace(/^.+\(|\)$/g, "").split(":");
+      symbolStr = symbol.join("");
       var stockTabs = document.querySelector(".stock-timeline-tabs");
 
       if (["SH", "SZ"].includes(symbol[0].toUpperCase())) {
         stockTabs.appendChild(
           createElement({
-            innerText: "评级",
+            innerText: "财务",
             href:
-              "http://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?code=" +
-              symbol.join(""),
+              "https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=soft&code=" +
+              symbolStr,
           })
         );
 
@@ -184,6 +186,30 @@ const clearRules = {
         href: "https://www.touzid.com/",
       })
     );
+
+    chrome.runtime.sendMessage(
+      {
+        getRanking: true,
+        code: symbolStr,
+      },
+      (data) => {
+        const { pjtj } = data;
+        const table = document.querySelector("table.quote-info>tbody");
+        const tr = document.createElement("tr");
+        const tds = [
+          `<td><span><a target="_blank" href="https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?code=${symbolStr}">机构评级</a></span></td>`,
+        ];
+        pjtj.slice(0, 3).forEach((td) => {
+          tds.push(
+            `<td>${td.sjd}：<span>${td.zhpj}(${td.mr > 0 ? "+" : ""}${
+              td.mr
+            })</span></td>`
+          );
+        });
+        tr.innerHTML = tds.join("");
+        table.appendChild(tr);
+      }
+    );
   },
 };
 
@@ -198,19 +224,20 @@ for (var key in clearRules) {
       }
     }
 
-    chrome.extension.sendMessage({
+    chrome.runtime.sendMessage({
       showContextMenu: true,
     });
     break;
   }
 }
 
-chrome.extension.onMessage.addListener(function (
+chrome.runtime.onMessage.addListener(function (
   request
   // sender,
   // sendResponse
 ) {
   if (request) {
+    // console.log("get message", request);
     clearRules[cleanKey](request);
   }
 });

@@ -1,9 +1,9 @@
 {
     "name": "Advertisement Cleaner",
-    "version": "1.0.3",
-    "manifest_version": 2,
+    "version": "1.1.0",
+    "manifest_version": 3,
     "author": "https://github.com/wahaha2012",
-    "description": "clean advertisement for some website.",
+    "description": "clean advertisements for some website.",
     "icons" : {
         "16" : "icons/icon16.png",
         "48" : "icons/icon48.png",
@@ -11,11 +11,13 @@
     },
     "permissions": [
         "contextMenus",
-        "tabs",
+        "tabs"
+    ],
+    "host_permissions": [
         "*://emweb.securities.eastmoney.com/*"
     ],
     "background":{
-        "scripts":["background.js"]
+        "service_worker": "background.js"
     },
     "content_scripts":[{
         "matches": [
