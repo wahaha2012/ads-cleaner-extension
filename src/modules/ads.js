@@ -145,6 +145,35 @@ const clearRules = {
         );
 
         symbol[0] = symbol[0].toUpperCase().replace("H", "") + "SE";
+
+        // get ranking data
+        chrome.runtime.sendMessage(
+          {
+            getRanking: true,
+            code: symbolStr,
+          },
+          (data) => {
+            const { pjtj } = data;
+            const container = document.querySelector("div.chart-container-box");
+            const table = document.createElement("table");
+            table.setAttribute("class", "quote-info");
+            const tr = document.createElement("tr");
+            const tds = [
+              `<td><span><a target="_blank" href="https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?code=${symbolStr}">机构评级</a></span></td>`,
+            ];
+            pjtj.slice(0, 4).forEach((td) => {
+              tds.push(
+                `<td>${td.sjd} <span>${((td.pjxs / 5) * 100).toFixed(0)}%${
+                  td.zhpj
+                }(${td.mr > 0 ? "+" : ""}${td.mr})</span></td>`
+              );
+            });
+            tr.innerHTML = tds.join("");
+            table.appendChild(tr);
+
+            container.parentNode.insertBefore(table, container);
+          }
+        );
       } else if (["HK"].includes(symbol[0].toUpperCase())) {
         symbol[0] = symbol[0].toUpperCase() + "EX";
         symbol[1] = Number(symbol[1]);
@@ -185,30 +214,6 @@ const clearRules = {
         innerText: "投资数据网",
         href: "https://www.touzid.com/",
       })
-    );
-
-    chrome.runtime.sendMessage(
-      {
-        getRanking: true,
-        code: symbolStr,
-      },
-      (data) => {
-        const { pjtj } = data;
-        const table = document.querySelector("table.quote-info>tbody");
-        const tr = document.createElement("tr");
-        const tds = [
-          `<td><span><a target="_blank" href="https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?code=${symbolStr}">机构评级</a></span></td>`,
-        ];
-        pjtj.slice(0, 3).forEach((td) => {
-          tds.push(
-            `<td>${td.sjd}：<span>${td.zhpj}(${td.mr > 0 ? "+" : ""}${
-              td.mr
-            })</span></td>`
-          );
-        });
-        tr.innerHTML = tds.join("");
-        table.appendChild(tr);
-      }
     );
   },
 };
