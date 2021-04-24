@@ -233,7 +233,7 @@
           const lowPriceRate = ((lowPrice / currentPrice - 1) * 100).toFixed(2);
 
           const widget = document.querySelectorAll(".stock-widget");
-          const url = `https://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${symbol[1]}.phtml`;
+          const url = `http://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${symbol[1]}.phtml`;
           const newWidget = createElement({
             tagName: "div",
             innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">评级</a><span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${highPrice}(${
