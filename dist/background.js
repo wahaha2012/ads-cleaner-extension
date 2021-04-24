@@ -3,6 +3,18 @@
   factory();
 }((function () { 'use strict';
 
+  const http = (url, dataType = "json", options = {}) => {
+    return fetch(url, options)
+      .then((response) => {
+        if (response.ok) {
+          return response[dataType]();
+        }
+      })
+      .catch((err) => {
+        console.log("Error:", err);
+      });
+  };
+
   /**
    * Author: wxwdesign@gmail.com
    * Source: https://github.com/wahaha2012/ads-cleaner-extension
@@ -42,24 +54,36 @@
           });
         }
       } else if (request.getRanking) {
-        fetch(
+        http(
           "https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=" +
-            request.code,
-          {
-            method: "GET",
-          }
-        )
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            }
-          })
-          .then((data) => {
-            sendResponse(data);
-          })
-          .catch((err) => {
-            console.log("Error:", err);
-          });
+            request.code
+        ).then((data) => {
+          sendResponse(data);
+        });
+        return true;
+      } else if (request.getRankTable) {
+        http(
+          `https://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${request.code[1]}.phtml`,
+          "blob"
+        ).then((data) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            sendResponse(reader.result);
+          };
+          reader.readAsText(data, "GBK");
+        });
+        return true;
+      } else if (request.getHKRankTable) {
+        http(
+          `http://vip.stock.finance.sina.com.cn/hk/view/rating.php?symbol=${request.code[1]}`,
+          "blob"
+        ).then((data) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            sendResponse(reader.result);
+          };
+          reader.readAsText(data, "GBK");
+        });
         return true;
       }
     });

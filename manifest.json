@@ -14,7 +14,8 @@
         "tabs"
     ],
     "host_permissions": [
-        "*://emweb.securities.eastmoney.com/*"
+        "*://emweb.securities.eastmoney.com/*",
+        "*://stock.finance.sina.com.cn/*"
     ],
     "background":{
         "service_worker": "background.js"
