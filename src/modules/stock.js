@@ -89,9 +89,15 @@ export const xueqiu = {
         const table = document.createElement("table");
         const trs = container.querySelectorAll("tr");
         const rankPrice = [];
+        const currentPrice = Number(
+          document
+            .querySelector(".stock-current")
+            .innerText.replace(/[^\d\.]+/, "")
+        );
         [].forEach.call(trs, (tr, i) => {
           const tds = tr.querySelectorAll("td");
-          if (!Number(tds[2].innerText) && i > 0) {
+          const targetPrice = Number(tds[2].innerText.replace(/,/g, ""));
+          if (!targetPrice && i > 0) {
             return;
           }
           const newTR = document.createElement("tr");
@@ -99,8 +105,8 @@ export const xueqiu = {
           newTR.appendChild(tds[4]);
           newTR.appendChild(tds[3]);
           newTR.appendChild(tds[2]);
-          if (Number(tds[2].innerText)) {
-            rankPrice.push(Number(tds[2].innerText));
+          if (targetPrice) {
+            rankPrice.push(targetPrice);
           }
           newTR.appendChild(tds[7]);
 
@@ -109,11 +115,20 @@ export const xueqiu = {
 
         // console.log(table);
         rankPrice.sort((a, b) => b - a);
+        const highPrice = rankPrice.shift();
+        const highPriceRate = ((highPrice / currentPrice - 1) * 100).toFixed(2);
+        const lowPrice = rankPrice.pop();
+        const lowPriceRate = ((lowPrice / currentPrice - 1) * 100).toFixed(2);
 
         const widget = document.querySelectorAll(".stock-widget");
+        const url = `https://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${symbol[1]}.phtml`;
         const newWidget = createElement({
           tagName: "div",
-          innerHTML: `<div class="widget-header"><div class="title">评级<span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${rankPrice.shift()} / 最低:${rankPrice.pop()}</span></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${
+          innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">评级</a><span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${highPrice}(${
+            highPriceRate > 0 ? "+" : ""
+          }${highPriceRate}%) / 最低:${lowPrice}(${
+            lowPriceRate > 0 ? "+" : ""
+          }${lowPriceRate}%)</span></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${
             table.innerHTML
           }</table></div>`,
           attrs: {
@@ -143,9 +158,15 @@ export const xueqiu = {
         const table = document.createElement("table");
         const trs = container.querySelectorAll("tr");
         const rankPrice = [];
+        const currentPrice = Number(
+          document
+            .querySelector(".stock-current")
+            .innerText.replace(/[^\d\.]+/, "")
+        );
         [].forEach.call(trs, (tr, i) => {
           const tds = tr.querySelectorAll("th,td");
-          if (!Number(tds[5].innerText) && i > 0) {
+          const targetPrice = Number(tds[5].innerText.replace(/,/g, ""));
+          if (!targetPrice && i > 0) {
             return;
           }
           const newTR = document.createElement("tr");
@@ -156,8 +177,8 @@ export const xueqiu = {
           newTds.push(`<td>${tds[5].innerText}</td>`);
           newTds.push(`<td>${tds[7].innerText}</td>`);
 
-          if (Number(tds[5].innerText)) {
-            rankPrice.push(Number(tds[5].innerText));
+          if (targetPrice) {
+            rankPrice.push(targetPrice);
           }
 
           newTR.innerHTML = newTds.join("");
@@ -167,11 +188,20 @@ export const xueqiu = {
 
         // console.log(table);
         rankPrice.sort((a, b) => b - a);
+        const highPrice = rankPrice.shift();
+        const highPriceRate = ((highPrice / currentPrice - 1) * 100).toFixed(2);
+        const lowPrice = rankPrice.pop();
+        const lowPriceRate = ((lowPrice / currentPrice - 1) * 100).toFixed(2);
 
         const widget = document.querySelectorAll(".stock-widget");
+        const url = `http://stock.finance.sina.com.cn/hkstock/quotes/${symbol[1]}.html`;
         const newWidget = createElement({
           tagName: "div",
-          innerHTML: `<div class="widget-header"><div class="title">评级<span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${rankPrice.shift()} / 最低:${rankPrice.pop()}</span></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${
+          innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">评级</a><span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${highPrice}(${
+            highPriceRate > 0 ? "+" : ""
+          }${highPriceRate}%) / 最低:${lowPrice}(${
+            lowPriceRate > 0 ? "+" : ""
+          }${lowPriceRate}%)</span></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${
             table.innerHTML
           }</table></div>`,
           attrs: {
