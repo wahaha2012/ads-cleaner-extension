@@ -156,13 +156,9 @@ export const xueqiu = {
           newTds.push(`<td>${tds[5].innerText}</td>`);
           newTds.push(`<td>${tds[7].innerText}</td>`);
 
-          // newTR.appendChild(tds[2]);
-          // newTR.appendChild(tds[3]);
-          // newTR.appendChild(tds[5]);
           if (Number(tds[5].innerText)) {
             rankPrice.push(Number(tds[5].innerText));
           }
-          // newTR.appendChild(tds[7]);
 
           newTR.innerHTML = newTds.join("");
 
