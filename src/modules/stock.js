@@ -236,14 +236,17 @@ export const xueqiu = {
         }
         const container = document.createElement("div");
         container.innerHTML = matches[0];
-        const table = createElement({
-          tagName: "table",
-        });
+        const table = document.createElement("table");
         const trs = container.querySelectorAll("tr");
+        let lineCount = 0;
         [].slice.call(trs, 0, 30).forEach((tr, i) => {
           const tds = tr.querySelectorAll("td");
           const newTR = document.createElement("tr");
           const newTds = [];
+
+          if (tds.length < 3) {
+            return;
+          }
 
           newTds.push(`<td>${tds[0].innerText}</td>`);
           newTds.push(`<td>${numberUnitFormat(tds[4].innerText)}</td>`);
@@ -252,7 +255,12 @@ export const xueqiu = {
           newTR.innerHTML = newTds.join("");
 
           table.appendChild(newTR);
+          lineCount += 1;
         });
+
+        if (lineCount < 2) {
+          return;
+        }
 
         const widget = document.querySelectorAll(".stock-widget");
         const newWidget = createElement({
