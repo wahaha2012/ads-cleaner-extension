@@ -112,7 +112,28 @@
     return el;
   }
 
+  /**
+   * format number unit
+   * @param {Number} num
+   * @returns result formatted
+   */
+  const numberUnitFormat = (num) => {
+    if (!Number(num)) {
+      return num;
+    } else if (num > 100000000) {
+      return (num / 100000000).toFixed(2) + "亿";
+    } else if (num > 10000) {
+      return (num / 10000).toFixed(2) + "万";
+    }
+  };
+
   const xueqiu = {
+    getCurrentPrice() {
+      return Number(
+        document.querySelector(".stock-current").innerText.replace(/[^\d\.]+/, "")
+      );
+    },
+
     addTabs() {
       var symbol = document.querySelector(".stock__main>.stock-name");
       var symbolStr = "";
@@ -138,6 +159,7 @@
           // add EX prefix to hongkong stocks
         } else if (["HK"].includes(symbol[0].toUpperCase())) {
           this.addHKRankTable([...symbol]);
+          this.addRepurchaseData([...symbol]);
           symbol[0] = symbol[0].toUpperCase() + "EX";
           symbol[1] = Number(symbol[1]);
         }
@@ -184,9 +206,12 @@
     },
 
     addRankTable(symbol) {
+      const url = `http://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${symbol[1]}.phtml`;
       chrome.runtime.sendMessage(
         {
+          url,
           getRankTable: true,
+          source: "sina",
           code: symbol,
         },
         (data) => {
@@ -201,11 +226,7 @@
           const table = document.createElement("table");
           const trs = container.querySelectorAll("tr");
           const rankPrice = [];
-          const currentPrice = Number(
-            document
-              .querySelector(".stock-current")
-              .innerText.replace(/[^\d\.]+/, "")
-          );
+          const currentPrice = this.getCurrentPrice();
           [].forEach.call(trs, (tr, i) => {
             const tds = tr.querySelectorAll("td");
             const targetPrice = Number(tds[2].innerText.replace(/,/g, ""));
@@ -233,7 +254,7 @@
           const lowPriceRate = ((lowPrice / currentPrice - 1) * 100).toFixed(2);
 
           const widget = document.querySelectorAll(".stock-widget");
-          const url = `http://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${symbol[1]}.phtml`;
+
           const newWidget = createElement({
             tagName: "div",
             innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">评级</a><span style="font-size:12px;font-weight:normal;margin-left: 10px;">最高:${highPrice}(${
@@ -256,6 +277,8 @@
       chrome.runtime.sendMessage(
         {
           getHKRankTable: true,
+          url: `http://vip.stock.finance.sina.com.cn/hk/view/rating.php?symbol=${symbol[1]}`,
+          source: "sina",
           code: symbol,
         },
         (data) => {
@@ -270,11 +293,7 @@
           const table = document.createElement("table");
           const trs = container.querySelectorAll("tr");
           const rankPrice = [];
-          const currentPrice = Number(
-            document
-              .querySelector(".stock-current")
-              .innerText.replace(/[^\d\.]+/, "")
-          );
+          const currentPrice = this.getCurrentPrice();
           [].forEach.call(trs, (tr, i) => {
             const tds = tr.querySelectorAll("th,td");
             const targetPrice = Number(tds[5].innerText.replace(/,/g, ""));
@@ -321,6 +340,54 @@
             },
           });
           widget[2].parentNode.insertBefore(newWidget, widget[2]);
+        }
+      );
+    },
+
+    addRepurchaseData(symbol) {
+      const url = `http://stock.finance.sina.com.cn/hkstock/rights/${symbol[1]}.html`;
+      chrome.runtime.sendMessage(
+        {
+          getHKRepurchase: true,
+          url,
+          source: "sina",
+          code: symbol,
+        },
+        (data) => {
+          const matches = data
+            .replace(/[\r\n\t]+/g, "")
+            .match(/<div\s+id="sub01_c3".*?>.*?<\/div>/);
+          if (!matches || !matches[0]) {
+            return;
+          }
+          const container = document.createElement("div");
+          container.innerHTML = matches[0];
+          const table = document.createElement("table");
+          table.setAttribute("border", 1);
+          const trs = container.querySelectorAll("tr");
+          [].slice.call(trs, 0, 30).forEach((tr, i) => {
+            const tds = tr.querySelectorAll("td");
+            const newTR = document.createElement("tr");
+            const newTds = [];
+
+            newTds.push(`<td>${tds[0].innerText}</td>`);
+            newTds.push(`<td>${numberUnitFormat(tds[4].innerText)}</td>`);
+            newTds.push(`<td>${tds[5].innerText}</td>`);
+
+            newTR.innerHTML = newTds.join("");
+
+            table.appendChild(newTR);
+          });
+
+          const widget = document.querySelectorAll(".stock-widget");
+          const newWidget = createElement({
+            tagName: "div",
+            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">回购</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+            attrs: {
+              class: "stock-widget",
+            },
+          });
+          widget[3].parentNode.insertBefore(newWidget, widget[3]);
         }
       );
     },

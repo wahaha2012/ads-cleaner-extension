@@ -61,23 +61,8 @@
           sendResponse(data);
         });
         return true;
-      } else if (request.getRankTable) {
-        http(
-          `https://stock.finance.sina.com.cn/stock/go.php/vIR_StockSearch/key/${request.code[1]}.phtml`,
-          "blob"
-        ).then((data) => {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            sendResponse(reader.result);
-          };
-          reader.readAsText(data, "GBK");
-        });
-        return true;
-      } else if (request.getHKRankTable) {
-        http(
-          `http://vip.stock.finance.sina.com.cn/hk/view/rating.php?symbol=${request.code[1]}`,
-          "blob"
-        ).then((data) => {
+      } else if (request.source === "sina") {
+        http(request.url, "blob").then((data) => {
           const reader = new FileReader();
           reader.onload = function (e) {
             sendResponse(reader.result);
