@@ -113,17 +113,44 @@
   }
 
   /**
-   * format number unit
+   * format number with chinese number unit
    * @param {Number} num
-   * @returns result formatted
+   * @returns {String | Any} result formatted
    */
-  const numberUnitFormat = (num) => {
-    if (!Number(num)) {
+  const numberUnitFormat = (num, precision = 2) => {
+    if (!num) {
       return num;
-    } else if (num > 100000000) {
-      return (num / 100000000).toFixed(2) + "亿";
-    } else if (num > 10000) {
-      return (num / 10000).toFixed(2) + "万";
+    } else if (num >= 100000000) {
+      return (num / 100000000).toFixed(precision) + "亿";
+    } else if (num >= 10000) {
+      return (num / 10000).toFixed(precision) + "万";
+    } else {
+      return num;
+    }
+  };
+
+  /**
+   * Thousands Separator Formatter
+   * @param {Number | String} number
+   * @return { String } formatted number string
+   */
+  const thousandsSeparatorFormat = (number) => {
+    const num = parseFloat(number);
+    if (typeof Number.prototype.toLocaleString === "function") {
+      return !isNaN(num) ? num.toLocaleString() : number;
+    }
+
+    if (num) {
+      let result = "";
+      const reverseString = (str) => str.split("").reverse().join("");
+      const arr = String(Math.abs(num)).split(".");
+      arr[0] = reverseString(arr[0]);
+      arr[0] = arr[0].replace(/(\d{3})/g, "$1,").replace(/,$/, "");
+      arr[0] = reverseString(arr[0]);
+      result = arr.join(".");
+      return num < 0 ? `-${result}` : result;
+    } else {
+      return number;
     }
   };
 
@@ -175,11 +202,12 @@
     },
 
     addRankSummary(symbolStr) {
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=${symbolStr}`;
       // get ranking data
       chrome.runtime.sendMessage(
         {
-          getRanking: true,
-          code: symbolStr,
+          url,
+          source: "eastmoney",
         },
         (data) => {
           const { pjtj } = data;
@@ -201,6 +229,141 @@
           table.appendChild(tr);
 
           container.parentNode.insertBefore(table, container);
+
+          this.addProfitPrediction(data, symbolStr);
+        }
+      );
+    },
+
+    // add profit prediction
+    addProfitPrediction(data, symbolStr) {
+      const { yctj, jgyc, gsjlr } = data;
+      const table = document.createElement("table");
+
+      const firstTr = document.createElement("tr");
+      firstTr.innerHTML =
+        "<th>年份</th><th>归母净利润</th><th>利润增速</th><th>市盈率</th>";
+      table.appendChild(firstTr);
+      yctj.data.slice(2, 6).forEach((tr, i) => {
+        const newTR = document.createElement("tr");
+        const newTds = [];
+        const key = `syl${i ? i : ""}`;
+
+        newTds.push(`<td>${tr.rq}</td>`);
+        newTds.push(`<td>${tr.jlr}</td>`);
+        newTds.push(`<td>${gsjlr[i].ratio}%</td>`);
+        newTds.push(`<td>${jgyc.data[0][key]}</td>`);
+
+        newTR.innerHTML = newTds.join("");
+
+        table.appendChild(newTR);
+      });
+
+      const widget = document.querySelectorAll(".stock-widget");
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?type=soft&code=${symbolStr}`;
+      const newWidget = createElement({
+        tagName: "div",
+        innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">业绩预测</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+        attrs: {
+          class: "stock-widget",
+        },
+      });
+      widget[1].parentNode.insertBefore(newWidget, widget[1]);
+
+      this.addBussinessData(symbolStr);
+    },
+
+    addBussinessData(symbolStr) {
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=${symbolStr}`;
+      chrome.runtime.sendMessage(
+        {
+          url,
+          source: "eastmoney",
+        },
+        (data) => {
+          const { zygcfx } = data;
+          const table = document.createElement("table");
+
+          const firstTr = document.createElement("tr");
+          firstTr.innerHTML =
+            "<th>产品</th><th>收入</th><th>占比</th><th>利润</th>";
+          table.appendChild(firstTr);
+
+          zygcfx[0].cp.forEach((tr, i) => {
+            const newTR = document.createElement("tr");
+            const newTds = [];
+
+            newTds.push(`<td>${tr.zygc}</td>`);
+            newTds.push(`<td>${tr.zysr}</td>`);
+            newTds.push(`<td>${tr.srbl}</td>`);
+            newTds.push(`<td>${tr.zylr}</td>`);
+
+            newTR.innerHTML = newTds.join("");
+
+            table.appendChild(newTR);
+          });
+
+          const widget = document.querySelectorAll(".stock-widget");
+          const url = `https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/Index?type=soft&code=${symbolStr}`;
+          const newWidget = createElement({
+            tagName: "div",
+            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">营收构成</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+            attrs: {
+              class: "stock-widget",
+            },
+          });
+          widget[0].parentNode.insertBefore(newWidget, widget[4]);
+
+          this.addShareholdersData(symbolStr);
+        }
+      );
+    },
+
+    addShareholdersData(symbolStr) {
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/ShareholderResearchAjax?code=${symbolStr}`;
+      chrome.runtime.sendMessage(
+        {
+          url,
+          source: "eastmoney",
+        },
+        (data) => {
+          const { sdgd } = data;
+          const table = document.createElement("table");
+          const currentPrice = this.getCurrentPrice();
+
+          const firstTr = document.createElement("tr");
+          firstTr.innerHTML =
+            "<th width='30%'>股东名称</th><th>持股数</th><th>市值</th><th>类型</th><th>占比</th><th>变动</th>";
+          table.appendChild(firstTr);
+
+          sdgd[0].sdgd.forEach((tr, i) => {
+            const newTR = document.createElement("tr");
+            const newTds = [];
+
+            newTds.push(`<td>${tr.gdmc}</td>`);
+            newTds.push(`<td>${tr.cgs}</td>`);
+            newTds.push(
+              `<td>${numberUnitFormat(
+              tr.cgs.replace(/,/g, "") * currentPrice
+            )}</td>`
+            );
+            newTds.push(`<td>${tr.gflx}</td>`);
+            newTds.push(`<td>${tr.zltgbcgbl}</td>`);
+            newTds.push(`<td>${thousandsSeparatorFormat(tr.zj)}</td>`);
+
+            newTR.innerHTML = newTds.join("");
+
+            table.appendChild(newTR);
+          });
+
+          const editor = document.querySelector(".editor-container");
+          const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/Index?type=soft&code=${symbolStr}`;
+          const newWidget = createElement({
+            tagName: "div",
+            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">十大股东</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
+            attrs: {},
+          });
+          editor.parentNode.insertBefore(newWidget, editor);
         }
       );
     },
@@ -268,7 +431,7 @@
               class: "stock-widget",
             },
           });
-          widget[2].parentNode.insertBefore(newWidget, widget[2]);
+          widget[0].parentNode.insertBefore(newWidget, widget[2]);
         }
       );
     },
@@ -545,11 +708,11 @@
     },
 
     "xueqiu.com": function () {
-      if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
-        cleanDomBySelector(
-          ".nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation"
-        );
-      }
+      // if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
+      //   cleanDomBySelector(
+      //     ".nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation"
+      //   );
+      // }
       setStyles(".nav", {
         position: "absolute",
       });

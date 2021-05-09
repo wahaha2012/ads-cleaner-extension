@@ -118,11 +118,11 @@ const clearRules = {
   },
 
   "xueqiu.com": function () {
-    if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
-      cleanDomBySelector(
-        ".nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation"
-      );
-    }
+    // if (window.localStorage.getItem("clean-dom-xueqiu") === "1") {
+    //   cleanDomBySelector(
+    //     ".nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation"
+    //   );
+    // }
     setStyles(".nav", {
       position: "absolute",
     });

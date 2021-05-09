@@ -1,5 +1,5 @@
 import { createElement } from "../utils/dom";
-import { numberUnitFormat } from "../utils/format";
+import { numberUnitFormat, thousandsSeparatorFormat } from "../utils/format";
 
 export const xueqiu = {
   getCurrentPrice() {
@@ -49,11 +49,12 @@ export const xueqiu = {
   },
 
   addRankSummary(symbolStr) {
+    const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=${symbolStr}`;
     // get ranking data
     chrome.runtime.sendMessage(
       {
-        getRanking: true,
-        code: symbolStr,
+        url,
+        source: "eastmoney",
       },
       (data) => {
         const { pjtj } = data;
@@ -75,6 +76,141 @@ export const xueqiu = {
         table.appendChild(tr);
 
         container.parentNode.insertBefore(table, container);
+
+        this.addProfitPrediction(data, symbolStr);
+      }
+    );
+  },
+
+  // add profit prediction
+  addProfitPrediction(data, symbolStr) {
+    const { yctj, jgyc, gsjlr } = data;
+    const table = document.createElement("table");
+
+    const firstTr = document.createElement("tr");
+    firstTr.innerHTML =
+      "<th>年份</th><th>归母净利润</th><th>利润增速</th><th>市盈率</th>";
+    table.appendChild(firstTr);
+    yctj.data.slice(2, 6).forEach((tr, i) => {
+      const newTR = document.createElement("tr");
+      const newTds = [];
+      const key = `syl${i ? i : ""}`;
+
+      newTds.push(`<td>${tr.rq}</td>`);
+      newTds.push(`<td>${tr.jlr}</td>`);
+      newTds.push(`<td>${gsjlr[i].ratio}%</td>`);
+      newTds.push(`<td>${jgyc.data[0][key]}</td>`);
+
+      newTR.innerHTML = newTds.join("");
+
+      table.appendChild(newTR);
+    });
+
+    const widget = document.querySelectorAll(".stock-widget");
+    const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/Index?type=soft&code=${symbolStr}`;
+    const newWidget = createElement({
+      tagName: "div",
+      innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">业绩预测</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+      attrs: {
+        class: "stock-widget",
+      },
+    });
+    widget[1].parentNode.insertBefore(newWidget, widget[1]);
+
+    this.addBussinessData(symbolStr);
+  },
+
+  addBussinessData(symbolStr) {
+    const url = `https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/BusinessAnalysisAjax?code=${symbolStr}`;
+    chrome.runtime.sendMessage(
+      {
+        url,
+        source: "eastmoney",
+      },
+      (data) => {
+        const { zygcfx } = data;
+        const table = document.createElement("table");
+
+        const firstTr = document.createElement("tr");
+        firstTr.innerHTML =
+          "<th>产品</th><th>收入</th><th>占比</th><th>利润</th>";
+        table.appendChild(firstTr);
+
+        zygcfx[0].cp.forEach((tr, i) => {
+          const newTR = document.createElement("tr");
+          const newTds = [];
+
+          newTds.push(`<td>${tr.zygc}</td>`);
+          newTds.push(`<td>${tr.zysr}</td>`);
+          newTds.push(`<td>${tr.srbl}</td>`);
+          newTds.push(`<td>${tr.zylr}</td>`);
+
+          newTR.innerHTML = newTds.join("");
+
+          table.appendChild(newTR);
+        });
+
+        const widget = document.querySelectorAll(".stock-widget");
+        const url = `https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/Index?type=soft&code=${symbolStr}`;
+        const newWidget = createElement({
+          tagName: "div",
+          innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">营收构成</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+          attrs: {
+            class: "stock-widget",
+          },
+        });
+        widget[0].parentNode.insertBefore(newWidget, widget[4]);
+
+        this.addShareholdersData(symbolStr);
+      }
+    );
+  },
+
+  addShareholdersData(symbolStr) {
+    const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/ShareholderResearchAjax?code=${symbolStr}`;
+    chrome.runtime.sendMessage(
+      {
+        url,
+        source: "eastmoney",
+      },
+      (data) => {
+        const { sdgd } = data;
+        const table = document.createElement("table");
+        const currentPrice = this.getCurrentPrice();
+
+        const firstTr = document.createElement("tr");
+        firstTr.innerHTML =
+          "<th width='30%'>股东名称</th><th>持股数</th><th>市值</th><th>类型</th><th>占比</th><th>变动</th>";
+        table.appendChild(firstTr);
+
+        sdgd[0].sdgd.forEach((tr, i) => {
+          const newTR = document.createElement("tr");
+          const newTds = [];
+
+          newTds.push(`<td>${tr.gdmc}</td>`);
+          newTds.push(`<td>${tr.cgs}</td>`);
+          newTds.push(
+            `<td>${numberUnitFormat(
+              tr.cgs.replace(/,/g, "") * currentPrice
+            )}</td>`
+          );
+          newTds.push(`<td>${tr.gflx}</td>`);
+          newTds.push(`<td>${tr.zltgbcgbl}</td>`);
+          newTds.push(`<td>${thousandsSeparatorFormat(tr.zj)}</td>`);
+
+          newTR.innerHTML = newTds.join("");
+
+          table.appendChild(newTR);
+        });
+
+        const editor = document.querySelector(".editor-container");
+        const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/Index?type=soft&code=${symbolStr}`;
+        const newWidget = createElement({
+          tagName: "div",
+          innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">十大股东</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
+          attrs: {},
+        });
+        editor.parentNode.insertBefore(newWidget, editor);
       }
     );
   },
@@ -142,7 +278,7 @@ export const xueqiu = {
             class: "stock-widget",
           },
         });
-        widget[2].parentNode.insertBefore(newWidget, widget[2]);
+        widget[0].parentNode.insertBefore(newWidget, widget[2]);
       }
     );
   },

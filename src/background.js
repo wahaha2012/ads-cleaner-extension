@@ -37,11 +37,8 @@ import { http } from "./utils/network";
           id: "cleanStartup",
         });
       }
-    } else if (request.getRanking) {
-      http(
-        "https://emweb.securities.eastmoney.com/PC_HSF10/ProfitForecast/ProfitForecastAjax?code=" +
-          request.code
-      ).then((data) => {
+    } else if (request.source === "eastmoney") {
+      http(request.url).then((data) => {
         sendResponse(data);
       });
       return true;
