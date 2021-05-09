@@ -159,9 +159,56 @@ export const xueqiu = {
             class: "stock-widget",
           },
         });
-        widget[0].parentNode.insertBefore(newWidget, widget[4]);
+        widget[0].parentNode.insertBefore(newWidget, widget[2]);
 
         this.addShareholdersData(symbolStr);
+
+        this.addManagementActivity(symbolStr);
+      }
+    );
+  },
+
+  addManagementActivity(symbolStr) {
+    const url = `https://emweb.securities.eastmoney.com/PC_HSF10/CompanyManagement/CompanyManagementAjax?code=${symbolStr}`;
+    chrome.runtime.sendMessage(
+      {
+        url,
+        source: "eastmoney",
+      },
+      (data) => {
+        const { RptShareHeldChangeList } = data;
+        const table = document.createElement("table");
+
+        const firstTr = document.createElement("tr");
+        firstTr.innerHTML =
+          "<th>日期</th><th width='20%'>变动人</th><th>变动数</th><th>均价(元)</th><th width='20%'>职位</th>";
+        table.appendChild(firstTr);
+
+        RptShareHeldChangeList.slice(0, 10).forEach((tr, i) => {
+          const newTR = document.createElement("tr");
+          const newTds = [];
+
+          newTds.push(`<td>${tr.rq}</td>`);
+          newTds.push(`<td>${tr.bdr}</td>`);
+          newTds.push(`<td>${tr.bdsl}</td>`);
+          newTds.push(`<td>${tr.jjjj}</td>`);
+          newTds.push(`<td>${tr.ggzw}</td>`);
+
+          newTR.innerHTML = newTds.join("");
+
+          table.appendChild(newTR);
+        });
+
+        const widget = document.querySelectorAll(".stock-widget");
+        const url = `https://emweb.securities.eastmoney.com/PC_HSF10/CompanyManagement/Index?type=soft&code=${symbolStr}`;
+        const newWidget = createElement({
+          tagName: "div",
+          innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">持股变动</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;">${table.innerHTML}</table></div>`,
+          attrs: {
+            class: "stock-widget",
+          },
+        });
+        widget[0].parentNode.insertBefore(newWidget, widget[4]);
       }
     );
   },

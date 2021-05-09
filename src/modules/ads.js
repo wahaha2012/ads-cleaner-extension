@@ -123,6 +123,10 @@ const clearRules = {
     //     ".nav__logo,.home__stock-index,.optional__tabs__contentsw.chart-container-box,.stock-info,.before-after,.stock-widget,.stock-hot__container,.most-profitable__container,.stock-relation"
     //   );
     // }
+    setTimeout(() => {
+      cleanDomBySelector(".stock__main .ad-right-aside");
+    }, 3500);
+
     setStyles(".nav", {
       position: "absolute",
     });
