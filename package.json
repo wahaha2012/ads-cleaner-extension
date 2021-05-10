@@ -1,6 +1,6 @@
 {
   "name": "ads-cleaner-extension",
-  "version": "1.0.1",
+  "version": "1.3.0",
   "description": "website ads cleaner",
   "main": "main.js",
   "scripts": {
