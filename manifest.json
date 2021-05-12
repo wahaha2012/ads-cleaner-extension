@@ -15,7 +15,8 @@
     ],
     "host_permissions": [
         "*://emweb.securities.eastmoney.com/*",
-        "*://stock.finance.sina.com.cn/*"
+        "*://stock.finance.sina.com.cn/*",
+        "*://funddb.cn/*"
     ],
     "background":{
         "service_worker": "background.js"

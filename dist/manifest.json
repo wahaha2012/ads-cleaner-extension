@@ -1,6 +1,6 @@
 {
     "name": "Advertisement Cleaner",
-    "version": "1.1.0",
+    "version": "1.3.0",
     "manifest_version": 3,
     "author": "https://github.com/wahaha2012",
     "description": "clean advertisements for some website.",
@@ -15,7 +15,8 @@
     ],
     "host_permissions": [
         "*://emweb.securities.eastmoney.com/*",
-        "*://stock.finance.sina.com.cn/*"
+        "*://stock.finance.sina.com.cn/*",
+        "*://funddb.cn/*"
     ],
     "background":{
         "service_worker": "background.js"

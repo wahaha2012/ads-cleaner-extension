@@ -53,10 +53,12 @@
             id: "cleanStartup",
           });
         }
-      } else if (request.source === "eastmoney") {
-        http(request.url).then((data) => {
-          sendResponse(data);
-        });
+      } else if (request.source === "eastmoney" || request.source === "funddb") {
+        http(request.url, request.dataType || "json", request.options || {}).then(
+          (data) => {
+            sendResponse(data);
+          }
+        );
         return true;
       } else if (request.source === "sina") {
         http(request.url, "blob").then((data) => {

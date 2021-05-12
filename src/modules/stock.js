@@ -458,6 +458,48 @@ export const xueqiu = {
     );
   },
 
+  // fear and greed index
+  addGreedAndFearIndex() {
+    const url = `http://funddb.cn/tool/fear`;
+    chrome.runtime.sendMessage(
+      {
+        url,
+        dataType: "text",
+        source: "funddb",
+      },
+      (html) => {
+        const rawHTML = html.replace(/[\r\n]+/g, "");
+        const itemPattern = /\s*<.+?>\s*/g;
+        const indexStatusList = (
+          rawHTML.match(/<p\s+class="p2">.*?<\/p>/g) || []
+        ).map((item) => item.replace(itemPattern, ""));
+
+        const statusList = (
+          rawHTML.match(/<span\s+class="s3">.*?<\/span>/g) || []
+        ).map((item) => item.replace(itemPattern, ""));
+
+        const sideMenu = document.querySelector(".xueqiu__menu");
+        const list = [
+          `<li>贪婪指数：<strong>${indexStatusList[3]}</strong></li>`,
+          `<li>贪婪程度：<strong>${indexStatusList[2]}</strong></li>`,
+          `<li>融资杠杆：<strong>${statusList[8]}</strong></li>`,
+          `<li>股回报率：<strong>${statusList[7]}</strong></li>`,
+          `<li>股价强度：<strong>${statusList[5]}</strong></li>`,
+        ];
+
+        const greedFearInfo = createElement({
+          tagName: "ul",
+          innerHTML: list.join(""),
+          attrs: {
+            class: "user__control__pannel",
+          },
+        });
+
+        sideMenu.parentElement.insertBefore(greedFearInfo, sideMenu);
+      }
+    );
+  },
+
   // update nav menus
   updateNavMenu() {
     // other tools
