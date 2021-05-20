@@ -98,7 +98,7 @@ export const xueqiu = {
 
       newTds.push(`<td>${tr.rq}</td>`);
       newTds.push(`<td>${tr.jlr}</td>`);
-      newTds.push(`<td>${i > 1 ? gsjlr[i - 2].ratio : "-"}%</td>`);
+      newTds.push(`<td>${i > 1 ? gsjlr[i - 2].ratio + "%" : "-"}</td>`);
       newTds.push(`<td>${i > 1 ? jgyc.data[0][key] : "-"}</td>`);
 
       newTR.innerHTML = newTds.join("");
