@@ -244,15 +244,15 @@
       firstTr.innerHTML =
         "<th>年份</th><th>归母净利润</th><th>利润增速</th><th>市盈率</th>";
       table.appendChild(firstTr);
-      yctj.data.slice(2, 6).forEach((tr, i) => {
+      yctj.data.slice(0, 6).forEach((tr, i) => {
         const newTR = document.createElement("tr");
         const newTds = [];
-        const key = `syl${i ? i : ""}`;
+        const key = `syl${i > 2 ? i - 2 : ""}`;
 
         newTds.push(`<td>${tr.rq}</td>`);
         newTds.push(`<td>${tr.jlr}</td>`);
-        newTds.push(`<td>${gsjlr[i].ratio}%</td>`);
-        newTds.push(`<td>${jgyc.data[0][key]}</td>`);
+        newTds.push(`<td>${i > 1 ? gsjlr[i - 2].ratio : "-"}%</td>`);
+        newTds.push(`<td>${i > 1 ? jgyc.data[0][key] : "-"}</td>`);
 
         newTR.innerHTML = newTds.join("");
 
