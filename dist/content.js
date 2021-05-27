@@ -813,9 +813,9 @@
       xueqiu.updateNavMenu();
       xueqiu.addTabs();
 
-      if (window.location.pathname === "/") {
-        xueqiu.addGreedAndFearIndex();
-      }
+      // if (window.location.pathname === "/") {
+      //   xueqiu.addGreedAndFearIndex();
+      // }
     },
   };
 
