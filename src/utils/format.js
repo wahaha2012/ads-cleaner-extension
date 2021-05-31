@@ -89,10 +89,21 @@ export const thousandsSeparatorFormat = (number) => {
   }
 };
 
+export const compareDirFormat = (current, prev) => {
+  if (current > prev) {
+    return "&uarr;";
+  } else if (current < prev) {
+    return "&darr;";
+  } else {
+    return "";
+  }
+};
+
 export default {
   formatTimeDiff,
   getSign,
   getSignColor,
   numberUnitFormat,
+  compareDirFormat,
   thousandsSeparatorFormat,
 };

@@ -154,6 +154,16 @@
     }
   };
 
+  const compareDirFormat = (current, prev) => {
+    if (current > prev) {
+      return "&uarr;";
+    } else if (current < prev) {
+      return "&darr;";
+    } else {
+      return "";
+    }
+  };
+
   const xueqiu = {
     getCurrentPrice() {
       return Number(
@@ -314,6 +324,7 @@
           });
           widget[0].parentNode.insertBefore(newWidget, widget[2]);
 
+          this.addFinanceData(symbolStr);
           this.addShareholdersData(symbolStr);
 
           this.addManagementActivity(symbolStr);
@@ -407,10 +418,228 @@
           const url = `https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/Index?type=soft&code=${symbolStr}`;
           const newWidget = createElement({
             tagName: "div",
-            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">十大股东</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
+            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">十大股东</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;margin-bottom: 10px;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
             attrs: {},
           });
           editor.parentNode.insertBefore(newWidget, editor);
+        }
+      );
+    },
+
+    addBalanceData(symbolStr, dateList) {
+      // 资产负债表
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/zcfzbAjaxNew?companyType=4&reportDateType=0&reportType=1&dates=${dateList.join(
+      ","
+    )}&code=${symbolStr}`;
+      chrome.runtime.sendMessage(
+        {
+          url,
+          source: "eastmoney",
+        },
+        (res) => {
+          const { data } = res;
+          const table = document.createElement("table");
+
+          const firstTr = document.createElement("tr");
+          firstTr.innerHTML =
+            "<th>报告期</th><th>货币资金</th><th>短期借款</th><th>应收账款</th><th>无形资产</th><th>商誉</th><th>股东权益</th><th>负债合计</th>";
+          table.appendChild(firstTr);
+
+          const getTrend = (i, key) => {
+            const nextId = i < data.length - 1 ? i + 1 : data.length - 1;
+            return compareDirFormat(data[i][key], data[nextId][key]);
+          };
+
+          data.forEach((tr, i) => {
+            const newTR = document.createElement("tr");
+            const newTds = [];
+
+            newTds.push(`<td>${tr.REPORT_DATE.split(" ")[0]}</td>`);
+            newTds.push(
+              `<td>${numberUnitFormat(tr.MONETARYFUNDS)}${getTrend(
+              i,
+              "MONETARYFUNDS"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.SHORT_LOAN) || "--"}${getTrend(
+              i,
+              "SHORT_LOAN"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.NOTE_ACCOUNTS_RECE)}${getTrend(
+              i,
+              "NOTE_ACCOUNTS_RECE"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.INTANGIBLE_ASSET) || "--"}${getTrend(
+              i,
+              "INTANGIBLE_ASSET"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.GOODWILL) || "--"}${getTrend(
+              i,
+              "GOODWILL"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.TOTAL_EQUITY)}${getTrend(
+              i,
+              "TOTAL_EQUITY"
+            )}</td>`
+            );
+            newTds.push(
+              `<td>${numberUnitFormat(tr.TOTAL_LIABILITIES)}${getTrend(
+              i,
+              "TOTAL_LIABILITIES"
+            )}</td>`
+            );
+
+            newTR.innerHTML = newTds.join("");
+
+            table.appendChild(newTR);
+          });
+
+          // 总结
+          const lastTr = document.createElement("tr");
+          lastTr.innerHTML = `<th>总结</th><th colspan="2">${
+          data[0].MONETARYFUNDS / data[0].SHORT_LOAN > 1.2
+            ? "现金充足"
+            : "现金紧张"
+        }</th><th></th><th>${
+          data[0].INTANGIBLE_ASSET / data[0].TOTAL_EQUITY > 0.15
+            ? "占比过大"
+            : "正常"
+        }</th><th>${
+          data[0].GOODWILL / data[0].TOTAL_EQUITY > 0.15 ? "商誉过大" : "正常"
+        }</th><th colspan="2">${
+          data[0].TOTAL_LIABILITIES / data[0].TOTAL_EQUITY > 1
+            ? "高杠杆"
+            : "正常"
+        }</th>`;
+          table.appendChild(lastTr);
+
+          const editor = document.querySelector(".editor-container");
+          const newWidget = createElement({
+            tagName: "div",
+            innerHTML: `<div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;margin-bottom: 10px;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
+            attrs: {},
+          });
+          editor.parentNode.insertBefore(newWidget, editor);
+        }
+      );
+    },
+
+    addFinanceData(symbolStr) {
+      const url = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/ZYZBAjaxNew?type=0&code=${symbolStr}`;
+      chrome.runtime.sendMessage(
+        {
+          url,
+          source: "eastmoney",
+        },
+        (res) => {
+          const { data } = res;
+          const dateList = [];
+          const table = document.createElement("table");
+
+          const firstTr = document.createElement("tr");
+          firstTr.innerHTML =
+            "<th>报告期</th><th>流动比率</th><th>权益乘数</th><th>应收周转天数</th><th>存货周转天数</th><th>扣非净资产收益率%</th><th>毛利率%</th><th>净利率%</th>";
+          table.appendChild(firstTr);
+
+          const getTrend = (i, key) => {
+            const nextId = i < data.length - 1 ? i + 1 : data.length - 1;
+            return compareDirFormat(data[i][key], data[nextId][key]);
+          };
+
+          data.forEach((tr, i) => {
+            const newTR = document.createElement("tr");
+            const newTds = [];
+
+            dateList.push(tr.REPORT_DATE.split(" ")[0]);
+            // 与前一项做对比，升还是降(箭头表示)
+            newTds.push(`<td>${tr.REPORT_DATE.split(" ")[0]}</td>`);
+            newTds.push(`<td>${tr.LD.toFixed(3)}${getTrend(i, "LD")}</td>`);
+            newTds.push(`<td>${tr.QYCS.toFixed(3)}${getTrend(i, "QYCS")}</td>`);
+            newTds.push(
+              `<td>${tr.YSZKZZTS?.toFixed(3)}${getTrend(i, "YSZKZZTS")}</td>`
+            );
+            newTds.push(
+              `<td>${tr.CHZZTS?.toFixed(0)}${getTrend(i, "CHZZTS")}</td>`
+            );
+            newTds.push(
+              `<td>${tr.ROEKCJQ ? tr.ROEKCJQ.toFixed(2) : "--"}${
+              tr.ROEKCJQ ? getTrend(i, "ROEKCJQ") : ""
+            }</td>`
+            );
+            newTds.push(
+              `<td>${tr.XSMLL?.toFixed(2)}${getTrend(i, "XSMLL")}</td>`
+            );
+            newTds.push(
+              `<td>${tr.XSJLL?.toFixed(2)}${getTrend(i, "XSJLL")}</td>`
+            );
+
+            newTR.innerHTML = newTds.join("");
+
+            table.appendChild(newTR);
+          });
+
+          // 总结
+          const lastTr = document.createElement("tr");
+          lastTr.innerHTML = `<th>总结</th><th>${
+          data[0].LD > 1.5
+            ? "资金充裕"
+            : data[0].LD < 1
+            ? "资金紧张"
+            : "资金正常"
+        }</th><th>${
+          data[0].QYCS >= 3
+            ? "超高杠杆"
+            : data[0].QYCS >= 2
+            ? "高杠杆"
+            : data[0].QYCS < 1
+            ? "低杠杆"
+            : "正常"
+        }</th><th>${
+          data[0].YSZKZZTS > 150
+            ? "收款困难"
+            : data[0].YSZKZZTS < 30
+            ? "收款容易"
+            : "账期一般"
+        }</th><th>${
+          data[0].CHZZTS > 300
+            ? "存货较多"
+            : data[0].CHZZTS < 100
+            ? "存货较少"
+            : "存货正常"
+        }</th><th></th><th>${
+          data[0].XSMLL > 50
+            ? "高毛利"
+            : data[0].XSMLL < 20
+            ? "低毛利"
+            : "毛利正常"
+        }</th><th>${
+          data[0].XSJLL > 20
+            ? "利润率高"
+            : data[0].XSJLL < 10
+            ? "利润率低"
+            : "正常利润"
+        }</th>`;
+          table.appendChild(lastTr);
+
+          const editor = document.querySelector(".editor-container");
+          const url = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=soft&code=${symbolStr}`;
+          const newWidget = createElement({
+            tagName: "div",
+            innerHTML: `<div class="widget-header"><div class="title"><a href="${url}" target="_blank" style="color:#33353c;">财务指标</a></div></div><div class="widget-content"><table style="font-size:12px;width:100%;font-size:12px;width:100%;border-collapse:collapse;margin-bottom: 10px;" border bordercolor="#dedede">${table.innerHTML}</table></div>`,
+            attrs: {},
+          });
+          editor.parentNode.insertBefore(newWidget, editor);
+
+          this.addBalanceData(symbolStr, dateList);
         }
       );
     },
